@@ -6,6 +6,7 @@
 
 - crawling.py : 各地方整備局が公開しているhtmlファイルをクローリングするためのコードです.
 - cleaning_.py : クローリングしたhtmlファイルを整形してcsvファイル形式で出力するためのコードです.
+- util.py : 上記の二つのコードを実行するために必要な関数が保存されたファイルです.
 
 ## Data description
 
@@ -28,6 +29,8 @@ pip install scrapy
 2. Rootpath, 地方整備局の有資格者名簿ホームのurl, 出力先のパスを設定してください.その際, 保存先のパスを
 ```bash
 Rootpath/business_category/YYYYMMDD/~~~.html
+
+ここに__main__を持ってきて説明をつける.不要な関数は全部utilにおいて短くする.
 ```
 3. コマンドラインで`crawling.py`を実行してください.
 
@@ -38,6 +41,8 @@ Rootpath/business_category/YYYYMMDD/~~~.html
 1. クローリングしたデータを保存しているditrctory, 出力するcsvを保存するdirectoryをを指定してください.
 ```bash
 Rootpath/region/
+
+ここに__main__を持ってきて説明をつける.不要な関数は全部utilにおいて短くする.
 ```
 2. コマンドラインで`cleaning.py`を実行してください.
 
