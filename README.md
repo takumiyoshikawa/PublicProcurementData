@@ -40,12 +40,23 @@ Rootpath/business_category/YYYYMMDD/~~~.html
 
 1. クローリングしたデータを保存しているditrctory, 出力するcsvを保存するdirectoryをを指定してください.
 ```bash
-Rootpath/region/
-
-ここに__main__を持ってきて説明をつける.不要な関数は全部utilにおいて短くする.
+if __name__ == "__main__":
+    
+    directory = 'directory/my_csv_panel.csv'
+    file_list = list_all_files('Rootpath/region/bussiness_category/'
+        , extension= 'html', sort = True)
+    make_csv(file_list, directory)
 ```
 2. コマンドラインで`cleaning.py`を実行してください.
 
 ## Remark
 - cleaning.pyの指定先をbusiness_categoryレベルまで指定:当該bussiness_categoryのパネルデータを生成
 - cleaning.pyの指定先をdateレベルまで指定:当該bussiness_categoryのクロスセクションデータを生成
+```bash
+if __name__ == "__main__":
+    
+    directory = 'directory/my_csv_cross_zsection.csv'
+    file_list = list_all_files('Rootpath/region/bussiness_category/YYYYMMDD'
+        , extension= 'html', sort = True)
+    make_csv(file_list, directory)
+```
