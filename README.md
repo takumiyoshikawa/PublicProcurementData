@@ -1,6 +1,6 @@
 # PublicProcurementData
 
-国土交通省の各地方整備局が公開している入札者情報をパネルデータとしてcsv化するコードを公開しています.
+国土交通省の各地方整備局が実施している入札の有資格業者名簿をパネルデータとしてcsv化するコードを公開しています.
 
 ## Overview 
 
@@ -11,6 +11,9 @@
 ## Data description
 
 - 有資格者名簿の説明（データの内容 / 更新頻度など）
+- 有資格者名簿は, 各地方整備局が実施している入札に, 参加することができる事業者のリストを公開しています.
+- 地方整備局に異なるが1月に1回から2回更新されています.　北海道開発局では月に1回, 東北, 関東, 中部, 近畿, 中国, 九州地方整備局では月に2回.
+- 各地方整備局は建設工事やコンサルタント業務など20強の区分について, 入札に参加資格のある事業者の名義, 代表者氏名,　法人所在地, 法人番号, 技術評価点, 財務評価点を公開しています.   
 - civil engineering / consultingの説明
 - なんかあれば
 
@@ -26,13 +29,29 @@ pip install scrapy
 ### crawling.py
 
 1. `pip install scrapy`を実行して`python-Scrapy`をインストールしてください.
-2. Rootpath, 地方整備局の有資格者名簿ホームのurl, 出力先のパスを設定してください.その際, 保存先のパスを
+2. 保存先のdirectoryをRootpathに, 取得したい地方整備局の有資格者名簿のurlをindex_urlに, 以下のように設定してください.
 ```bash
-Rootpath/business_category/YYYYMMDD/~~~.html
+class Kanto_Spider(CrawlSpider):
+    name = "kanto"
+    index_url = "http://www.ktr.mlit.go.jp/honkyoku/nyuusatu/shikakushinsa/files/"
+    Rootpath = '/Rootpath/kanto/'
 
-ここに__main__を持ってきて説明をつける.不要な関数は全部utilにおいて短くする.
+    URL_List = URL_List(index_url)
+    start_urls = URL_List.find_all_data_url()
+    date_object = URL_list.get_update_date()
+
+    path = pathlib.PosixPath(Rootpath + date_object)
+    pathlib.Path.mkdir(path, exist_ok= True)
+
+    def parse(self, response):
+        filename = path + '/' + name + date_object + '_' + response.url.split("/")[-1]
+        with open(filename, 'wb') as f:
+            f.write(response.body)
 ```
-3. コマンドラインで`crawling.py`を実行してください.
+3. コマンドラインで以下により, `crawling.py`を実行してください.
+```bash
+scrapy crawl spider_name
+```
 
 
 
