@@ -1,140 +1,220 @@
-# PublicProcurementData
+# 公共調達のデータ整備
 
-国土交通省の各地方整備局が実施している競争入札の有資格業者名簿をcsvデータとして公開しています.
+このrepositoryでは、国土交通省の各地方整備局が実施している公共調達の経済学分析に役立つデータとその収集・整理のためのコードを公開している。各地方整備局は、競争入札によって、土木工事や測量事業などを調達している。まず、その入札のデータを公開している。また、この競争入札に参加するためには競争参加資格を得る必要があり、各地方整備局が随時申請を受け付けている。この有資格者名簿のデータを、収集するためのコードとともに公開している。
 
-## Overview
+## 1. データ
 
-- 国土交通省の地方整備局は, 土木工事や測量事業等を競争入札によって受注しています.
-- 競争入札に参加するためには競争参加資格を得る必要があり, 各地方整備局が随時申請を受け付けています. 
-	- 参照 : 中部地方整備局の例 (https://www.cbr.mlit.go.jp/contract/kyousou/index.htm)
-- 各地方整備局は, 競争参加資格を持つ企業のリストを有資格者名簿として公開しています.
-- 本プロジェクトでは, html形式でデータを公開している, 北海道地方開発局, 東北地方整備局, 関東地方整備局, 中部地方整備局, 近畿地方整備局, 中国地方整備局, 九州地方整備局について, 有資格者名簿をcsv形式でパネルデータ化することを目的としています.
+公開しているデータは、入札データと有資格者名簿データである。
 
-## Data description
+### 1.1. 入札データ
 
-- 有資格者名簿は, 各地方整備局が実施している入札に, 参加することができる事業者のリストのことです.
-- 地方整備局によって異なりますが一ヶ月に1回から2回更新されています.　北海道開発局では月に1回, 東北, 関東, 中部, 近畿, 中国, 九州地方整備局では月に2回の更新です.
-- 各地方整備局は建設工事やコンサルタント業務など20強の区分について, 入札に参加資格のある事業者の名義, 代表者氏名,　法人所在地, 法人番号, 技術評価点, 財務評価点, 総合評価点等を公開しています.   
-- 事業は土木, 鋼橋といった建設工事と, 測量や地質調査などのコンサルティング業務があります. 
+予定価格が一定額を超える中大規模の一般競争入札（オークションによる調達）において、どの企業がいくらで入札し評価値 (入札額および品質によりつけられた値 ) がいくらであったか、およびどの企業が落札したかというデータを掲載している。原則として 最新 2年度分のデータが csv形式で各地方整備局のHPに掲載されて、ここでは2018年度と2019年度のデータを公開している。
 
-関東地方整備局を例にとって, データの中身を説明します.
-- 建設工事
-	- firm_name : 商号又は名称
-	- ceo_name : 代表者名
-	- firm_address : 住所
-	- firm_id : 法人番号
-		- Joint Ventureの場合は`JV`が入力され, 法人番号のない企業には何も入力されていません.
-	- civilengineering_{qualification/rank/exception/financial_score/technical_score/total_score} : 土木工事の{等級/順位/例外処理用の欄/経審評価点数/技術評価点数/総合点数}
-	- asphalt_{同上} : アスファルトの{同上}
-	- bridge_{同上} : 鋼橋上部の{同上}
-	- landscaping_{同上} : 造園の_{同上}
-	- builiding_{同上} : 建築の{同上}
-	- woodenbuiliding_{同上} : 木造建築の{同上}
-	- electricity_{同上} : 電気設備_{同上}
-	- airconditioning_{同上} : 暖冷房衛生設備の{同上}
-	- cement_{同上} : セメントの{同上}
-	- prestressed_{同上} : プレストレスメントの_{同上}
-	- slope_{同上} : 法面処理の{同上}
-	- painting_{同上} : 塗装の{同上}
-	- maintenance_{同上} : 維持修繕の_{同上}
-	- dredging_{同上} : しゅんせつの{同上}
-	- grout_{同上} : グラウトの{同上}
-	- stakeout_{同上} : 杭打の_{同上}
-	- well_{同上} : さく井の{同上}
-	- prefab_{同上} : プレハブ建築の{同上}
-	- machinery_{同上} : 機械設備の_{同上}
-	- communication_{同上} : 通信設備の{同上}
-	- substation_{同上} : 受変電設備の{同上}
-	- date : データの更新日時
-- コンサルタント業務
-	- firm_name : 商号又は名称
-	- firm_id : 法人番号
-	- prefecture : 所在県名
-	- firm_size : 規模
-	- surveying : 測量の順位
-	- building_consulting : 建築関係コンサルティングの順位
-	- civilengineering_consulting : 土木関係コンサルティングの順位
-	- geological_survey : 地質調査の順位
-	- compensation_consultant : 補償関係コンサルタントの順位
+### 1.2. 有資格者名簿データ
 
-- 各業種への参加資格を保有しない場合, 当該業種に関連する変数は欠損値になっています. 
+各事業に入札を行うためには資格が必要となり、各地方整備局が随時申請を受け付けている . 有資格者名簿は各自治体のホームページに html形式で掲載されている。資格は２年間有効で、1月毎に有資格者の一覧は更新され、過去の情報は削除される 。 一ヶ月毎にクローリングすることで参入のデータを整理している。
 
-## License
-<!--
-## Overview 
+事業には、主に建設工事とコンサルティングがある。例えば、建設工事には土木や鋼橋などがあり、コンサルティング業務には測量や地質調査などがある。名簿は一ヶ月に1回から2回更新されており、建設工事については2019年9月から、コンサルティング業務については2019年12月からデータを集めている。なお、更新頻度は以下のように地方によって異なる。
 
-- crawling.py : 各地方整備局が公開しているhtmlファイルをクローリングするためのコードです.
-- cleaning_.py : クローリングしたhtmlファイルを整形してcsvファイル形式で出力するためのコードです.
-- util.py : 上記の二つのコードを実行するために必要な関数が保存されたファイルです.
+- 月1回…北海道開発局
+- 月2回…東北, 関東, 中部, 近畿, 中国, 九州地方整備局
 
-## Data description
+#### 建設工事事業の変数
 
-- 有資格者名簿の説明（データの内容 / 更新頻度など）
-- 有資格者名簿は, 各地方整備局が実施している入札に, 参加することができる事業者のリストのことです.
-- 地方整備局によって異なりますが一ヶ月に1回から2回更新されています.　北海道開発局では月に1回, 東北, 関東, 中部, 近畿, 中国, 九州地方整備局では月に2回の更新です.
-- 各地方整備局は建設工事やコンサルタント業務など20強の区分について, 入札に参加資格のある事業者の名義, 代表者氏名,　法人所在地, 法人番号, 技術評価点, 財務評価点, 総合評価点を公開しています.   
-- 事業は土木, 鋼橋といった建設工事と, 測量や地質調査などのコンサルティング業務があります.
+まず、有資格者の基礎変数とデータの更新日時がある。
 
-## Requirement
-- crawling.py：Python3（動作確認環境:macOS catalina, Python 3.7.0）Pythonは[ここ](https://www.anaconda.com/distribution/)からインストールできます。また、crawling.pyを実行するには`python-Scrapy`が必要です。以下のコマンドでインストールできます。
+| 基礎変数名   | 意味             |
+| :----------- | ---------------- |
+| firm_name    | 商号又は名称     |
+| ceo_name     | 代表者名         |
+| firm_address | 住所             |
+| firm_id      | 法人番号         |
+| date         | データの更新日時 |
+
+- なお、Joint Ventureの場合は`JV`が入力され, 法人番号のない企業には何も入力されていない。
+
+そして、資格の内容を表す変数名は、事業内容と評価内容を組み合わせてできている。例えば、civilengineering_qualificationとは、「土木工事の等級」という意味である。
+
+| 事業内容         | 意味               |
+| :--------------- | ------------------ |
+| civilengineering | 一般土木           |
+| asphalt          | アスファルト       |
+| bridge           | 鋼橋上部           |
+| landscaping      | 造園               |
+| building         | 建築               |
+| woodenbuilding   | 木造建築           |
+| electricity      | 電気設備           |
+| airconditioning  | 暖冷房衛生設備     |
+| cement           | セメント           |
+| prestressed      | プレストレスメント |
+| slope            | 法面処理           |
+| painting         | 塗装               |
+| maintenance      | 維持修繕           |
+| dredging         | しゅんせつ         |
+| grout            | グラウト           |
+| stakeout         | 杭打               |
+| well             | さく井             |
+| prefab           | プレハブ建築       |
+| machinery        | 機械設備           |
+| communication    | 通信設備           |
+| substation       | 受変電設備         |
+
+| 評価内容        | 意味           |
+| :-------------- | -------------- |
+| qualification   | 等級           |
+| rank            | 順位           |
+| exception       | 例外処理用の欄 |
+| financial_score | 経審評価点数   |
+| technical_score | 技術評価点数   |
+| total_score     | 総合点数       |
+
+なお北海道に限っては事業内容の変数構成が異なる。
+
+| 事業内容         | 意味               |
+| :--------------- | ------------------ |
+| civilengineering | 一般土木          |
+| building         | 建築               |
+| asphalt          | 舗装　　　　      |
+| bridge           | 鋼橋上部           |
+| prestressed      | PSコンクリート    |
+| dredging         | しゅんせつ         |
+| machinery        | 機械装置           |
+| pipe             | 管              |
+| electricity      | 電気            |
+| painting         | 塗装               |
+| landscaping      | 造園               |
+| waterproof       | 防水加工         |
+| well             | さく井             |
+| grout            | グラウト           |
+| maintenance      | 維持             |
+| others           | その他           |
+
+
+
+#### コンサルティング事業の変数
+
+コンサルティング事業における変数は以下である。
+
+| 基礎変数名   | 意味             |
+| :----------- | ---------------- |
+| firm_name    | 商号又は名称     |
+| firm_id      | 法人番号         |
+| prefecture   | 所在県名         |
+| firm_size    | 規模           | 
+| date         | データの更新日時 |
+| building_consulting | 建築関係コンサルティングの順位 |
+| civilengineering_consulting | 土木関係コンサルティングの順位 |
+| geological_survey | 地質調査の順位 |
+| compensation_consultant | 補償関係コンサルタントの順位 |
+
+
+
+
+## 2. コード(有資格業者名簿)
+
+有資格業者名簿のデータを活用する際、どのようにしてデータが編集されたのかを知ることが役に立つ。そこで、ここではデータ収集および編集のコードを公開する。
+
+### 2.1. コード内容
+
+データ収集と編集のためのコードは以下3つの.pyファイルにまとめられている。
+
+1. crawling.py … 各地方整備局が公開しているhtmlファイルをクローリングするためのコード
+2. cleaning.py … クローリングしたhtmlファイルを整形してcsvファイル形式で出力するためのコード(各地方ごとのコードをまとめてある)
+
+Python3（動作確認環境:macOS catalina, Python 3.7.0）Pythonは[ここ](https://www.anaconda.com/distribution/)からインストールできる。crawling.pyを実行するには`python-Scrapy`が必要であり、以下のコマンドでインストールできる：
 
 ```bash
 pip install scrapy
 ```
 
-## Usage
+### 2.2. 手順
 
-### crawling.py
 
-1. `pip install scrapy`を実行して`python-Scrapy`をインストールしてください.
-2. 保存先のdirectoryをRootpathに, 取得したい地方整備局の有資格者名簿のurlをindex_urlに, 以下のように設定してください.
+以下の手順で、上記の.pyファイルを実行してデータを収集している.
+
+#### crawling.py
+
+1. `pip install scrapy`を実行して`python-Scrapy`をインストールする
+2. 保存先のdirectoryをRootpathに, 取得したい地方整備局の有資格者名簿のurlをindex_urlに, 以下のように設定する
+
+- 以下では関東地方整備局をクローリングする例
 ```bash
 class Kanto_Spider(CrawlSpider):
     name = "kanto"
-    index_url = "http://www.ktr.mlit.go.jp/honkyoku/nyuusatu/shikakushinsa/files/"
-    Rootpath = '/Rootpath'
 
-    URL_List = URL_List(index_url)
-    start_urls = URL_List.find_all_data_url()
-    date_object = URL_list.get_update_date()
+    def __init__(self, category=None, *args, **kwargs):
+        super(Kanto_Spider, self).__init__(*args, **kwargs)
+        
+        // 年度の変更によってindex_url変更の可能性あり.
+        self.index_url = 'http://www.ktr.mlit.go.jp/honkyoku/nyuusatu/shikakushinsa/files/'　
+        self.Rootpath = './data/kanto/'
+        
+        self.URL_List = URL_List(self.index_url, self.Rootpath)
+        self.start_urls = self.URL_List.find_all_data_url()
+        self.date_object = self.URL_List.get_update_date()
+        self.URL_List.make_directory()
 
-    path = pathlib.PosixPath(Rootpath + date_object)
-    pathlib.Path.mkdir(path, exist_ok= True)
 
     def parse(self, response):
-        filename = path + '/' + name + date_object + '_' + response.url.split("/")[-1]
+        html_name = response.url.split('/')[-1]
+
+        // 各整備局のアップローディングルールにより, 30未満は工事区分 30以上はコンサルティング区分
+        if int(re.search('\d+', html_name).group()) < 30:
+            filename = self.Rootpath + 'civil_engineering/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
+        else:
+            filename = self.Rootpath + 'consulting/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
+        
         with open(filename, 'wb') as f:
             f.write(response.body)
+
 ```
-3. コマンドラインで以下により, `crawling.py`を実行してください.ここでは, `name`は`kanto`になります
+
+3. コマンドラインで以下により, `crawling.py`を実行する.ここでは例として, `name`は`kanto`になる
+
 ```bash
 scrapy crawl name
 ```
 
+#### cleaning.py
+
+0. このコードは `./region/business_category/date/` というディレクトリ構造に従ってデータを保存していることに依拠している。
+.
+├── code
+│   └── cleaning.py
+└── data
+    ├── chubu
+    │   ├── construction
+    │   │   ├── 20191001
+    │   │   │   ├── chubu_20191001_eq_saku17YDn.html
+    │   │   │   ├── chubu_20191001_eq_saku17YDr.html
+    │   │   │   └── chubu_20191001_eq_saku17YDs.html
+    │   │   └── 20191015
+    │   └── consulting
+    ├── chugoku
+    ├── hokkaido
+    ├── kanto
+    ├── kinki
+    └── kyushu
 
 
-### cleaning.py
+1. クローリングしたデータを保存しているditrctory, 出力するcsvを保存するdirectoryをを指定する。
 
-1. クローリングしたデータを保存しているditrctory, 出力するcsvを保存するdirectoryをを指定してください.
+- `region`には指定したい地域、例えば`chubu`を記述する。
+- `business_category`には指定したい業態、例えば`construction`を記述する。
+- `date`には指定したい日付、例えば`20191001`を記述する。
+
 ```bash
 if __name__ == "__main__":
     
-    directory = 'directory/my_csv_panel.csv'
-    file_list = list_all_files('Rootpath/region/bussiness_category/'
+    output = '../region/output/business_category/region_business_category_date.csv'
+    file_list = list_all_files('./data/region/business_category/date'
         , extension= 'html', sort = True)
-    make_csv(file_list, directory)
+    make_csv(file_list, output)
 ```
-2. コマンドラインで`cleaning.py`を実行してください.
 
-## Remark
-- cleaning.pyの指定先をbusiness_categoryレベルまで指定:当該bussiness_categoryのパネルデータを生成
-- cleaning.pyの指定先をdateレベルまで指定:当該bussiness_categoryのクロスセクションデータを生成
-```bash
-if __name__ == "__main__":
-    
-    directory = 'directory/my_csv_cross_zsection.csv'
-    file_list = list_all_files('Rootpath/region/bussiness_category/YYYYMMDD'
-        , extension= 'html', sort = True)
-    make_csv(file_list, directory)
-```
--->
+2. コマンドラインで`cleaning.py`を実行する.
+
+### 2.3. ライセンス
+
+Unlicenseに即し、全てのデータ、コードおよびドキュメントはパブリックドメインである。
+
