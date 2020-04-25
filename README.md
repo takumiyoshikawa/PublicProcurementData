@@ -179,22 +179,22 @@ scrapy crawl name
 
 0. このコードは `./region/business_category/date/` というディレクトリ構造に従ってデータを保存していることに依拠している。
 .
-├── code
-│   └── cleaning.py
-└── data
-    ├── chubu
-    │   ├── construction
-    │   │   ├── 20191001
-    │   │   │   ├── chubu_20191001_eq_saku17YDn.html
-    │   │   │   ├── chubu_20191001_eq_saku17YDr.html
-    │   │   │   └── chubu_20191001_eq_saku17YDs.html
-    │   │   └── 20191015
-    │   └── consulting
-    ├── chugoku
-    ├── hokkaido
-    ├── kanto
-    ├── kinki
-    └── kyushu
++-- code
+|   +-- cleaning.py
++-- data
+    +-- chubu
+    │   +── construction
+    │   │   +── 20191001
+    │   │   │   +── chubu_20191001_eq_saku17YDn.html
+    │   │   │   +── chubu_20191001_eq_saku17YDr.html
+    │   │   │   +── chubu_20191001_eq_saku17YDs.html
+    │   │   +── 20191015
+    │   +── consulting
+    +── chugoku
+    +── hokkaido
+    +── kanto
+    +── kinki
+    +── kyushu
 
 
 1. クローリングしたデータを保存しているditrctory, 出力するcsvを保存するdirectoryをを指定する。
