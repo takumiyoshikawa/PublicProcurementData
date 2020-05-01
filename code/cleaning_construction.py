@@ -138,20 +138,20 @@ def make_csv(file_list, directory):
     panel_df = make_panel(file_list)
     panel_df.to_csv(directory, encoding='utf_8_sig')
 
-def get_input_directory(region, business_category, date):
+def get_input_directory(region, date):
     path = pathlib.Path(__file__).resolve()
-    directory = str(path.parent.parent) + "/data/" + region + "/qualification/" + business_category + "/" + date
+    directory = str(path.parent.parent) + "/data/" + region + "/qualification/construction/" + date
 
     return directory
 
 
-def set_output_directory(region, business_category, date):
+def set_output_directory(region, date):
     path = pathlib.Path(__file__).resolve()
     # make output directory
     path_dir = pathlib.Path(str(path.parent.parent) + "/data/" + region)
     pathlib.Path.mkdir(path_dir, exist_ok = True, parents=True)
     # file name
-    directory = str(path.parent.parent) + "/data/" + region + "/qualification/" + region + "_" + business_category + "_" + date + ".csv"
+    directory = str(path.parent.parent) + "/data/" + region + "/qualification/" + region + "_construction_" + date + ".csv"
     
     return directory
 
@@ -160,12 +160,12 @@ def set_output_directory(region, business_category, date):
 if __name__ == "__main__":
 
     region = 'kanto'
-    business_category = "construction"
+    # dataが存在する日付を指定
     dates = ["20200501"]
 
     for date in dates:
-      output_directory = set_output_directory(region, business_category, date)
-      file_list = list_all_files(get_input_directory(region, business_category, date), extension= 'html', sort = True)
+      output_directory = set_output_directory(region, date)
+      file_list = list_all_files(get_input_directory(region, date), extension= 'html', sort = True)
       make_csv(file_list, output_directory)
 
 
