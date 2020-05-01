@@ -114,17 +114,49 @@
 
 有資格業者名簿のデータを活用する際、どのようにしてデータが編集されたのかを知ることが役に立つ。そこで、ここではデータ収集および編集のコードを公開する。
 
+
 ### 2.1. コード内容
 
-データ収集と編集のためのコードは以下2つの.pyファイルにまとめられている。
+データ収集と編集のためのコードは以下3つの.pyファイルにまとめられている。
 
 1. crawling.py … 各地方整備局が公開しているhtmlファイルをクローリングするためのコード
-2. cleaning.py … クローリングしたhtmlファイルを整形してcsvファイル形式で出力するためのコード(各地方ごとのコードをまとめてある)
+2. cleaning_construction.py … クローリングしたhtmlファイルのうちconstruction区分のものを整形してcsvファイル形式で出力するためのコード(各地方ごとのコードをまとめてある)
+3. cleaning_consulting.py … クローリングしたhtmlファイルのうちconsulting区分のものを整形してcsvファイル形式で出力するためのコード(各地方ごとのコードをまとめてある)
 
 Python3（動作確認環境:macOS catalina, Python 3.7.0）Pythonは[ここ](https://www.anaconda.com/distribution/)からインストールできる。crawling.pyを実行するには`python-Scrapy`が必要であり、以下のコマンドでインストールできる：
 
 ```bash
 pip install scrapy
+```
+
+なお、上記のコードは以下のようなディレクトリ構造に依拠している。
+
+```
+.
+├── code
+│   ├── PP_Scrapy
+│   │   └── PP_Scrapy
+│   │       └── spiders
+│   │           └── crawling.py
+│   ├── cleaning_construction.py
+│   └── cleaning_consulting.py
+└── data
+    ├── chubu
+    │   ├── bid
+    │   └── qualification
+    │       ├── construction
+    │       │   ├── 20191001
+    │       │   │   ├── chubu_20191001_eq_saku17YDn.html
+    │       │   │   ├── chubu_20191001_eq_saku17YDr.html
+    │       │   │   └── chubu_20191001_eq_saku17YDs.html
+    │       │   └── 20191015
+    │       └── consulting
+    ├── chugoku
+    ├── hokkaido
+    ├── kanto
+    ├── kinki
+    └── kyushu
+
 ```
 
 ### 2.2. 手順
@@ -135,20 +167,20 @@ pip install scrapy
 #### crawling.py
 
 1. `pip install scrapy`を実行して`python-Scrapy`をインストールする
-2. 保存先のdirectoryをRootpathに, 取得したい地方整備局の有資格者名簿のurlをindex_urlに, 以下のように設定する
+2. 取得したい地方整備局の有資格者名簿のurlをindex_urlに以下のように設定し、`name`を取得したい地域名に設定する。
 
 - 以下では関東地方整備局をクローリングする例
 ```bash
-class Kanto_Spider(CrawlSpider):
+class Spider(CrawlSpider):
+    # 取得したい地域名を設定
     name = "kanto"
 
     def __init__(self, category=None, *args, **kwargs):
-        super(Kanto_Spider, self).__init__(*args, **kwargs)
-        
-        // 年度の変更によってindex_url変更の可能性あり.
-        self.index_url = 'http://www.ktr.mlit.go.jp/honkyoku/nyuusatu/shikakushinsa/files/'　
-        self.Rootpath = './data/kanto/'
-        
+        super(Spider, self).__init__(*args, **kwargs)
+        # 年度の変更によってindex_url変更の可能性あり.
+        self.index_url = 'http://www.ktr.mlit.go.jp/honkyoku/nyuusatu/shikakushinsa/files/'
+        self.Rootpath = str(pathlib.Path(__file__).resolve().parents[4]) + "/data/" + self.name + "/qualification"
+        print(self.Rootpath)
         self.URL_List = URL_List(self.index_url, self.Rootpath)
         self.start_urls = self.URL_List.find_all_data_url()
         self.date_object = self.URL_List.get_update_date()
@@ -157,63 +189,72 @@ class Kanto_Spider(CrawlSpider):
 
     def parse(self, response):
         html_name = response.url.split('/')[-1]
-
-        // 各整備局のアップローディングルールにより, 30未満は工事区分 30以上はコンサルティング区分
+        print(html_name)
+        print(re.search('\d+', html_name).group())
         if int(re.search('\d+', html_name).group()) < 30:
-            filename = self.Rootpath + 'civil_engineering/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
+            filename = self.Rootpath + '/construction/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
+            print(filename)
         else:
-            filename = self.Rootpath + 'consulting/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
+            filename = self.Rootpath + '/consulting/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
         
         with open(filename, 'wb') as f:
             f.write(response.body)
+
 
 ```
 
 3. コマンドラインで以下により, `crawling.py`を実行する.ここでは例として, `name`は`kanto`になる
 
 ```bash
-scrapy crawl name
+scrapy crawl ${name}
 ```
 
-#### cleaning.py
+#### cleaning_construction.py
 
-0. このコードは `./region/business_category/date/` というディレクトリ構造に従ってデータを保存していることに依拠している。
-```
-.
-├── code
-│   └── cleaning.py
-└── data
-    ├── chubu
-    │   ├── construction
-    │   │   ├── 20191001
-    │   │   │   ├── chubu_20191001_eq_saku17YDn.html
-    │   │   │   ├── chubu_20191001_eq_saku17YDr.html
-    │   │   │   └── chubu_20191001_eq_saku17YDs.html
-    │   │   └── 20191015
-    │   └── consulting
-    ├── chugoku
-    ├── hokkaido
-    ├── kanto
-    ├── kinki
-    └── kyushu
-```
+1. data取得した地域名、及び日付を設定する。
 
-1. クローリングしたデータを保存しているditrctory, 出力するcsvを保存するdirectoryをを指定する。
-
-- `region`には指定したい地域、例えば`chubu`を記述する。
-- `business_category`には指定したい業態、例えば`construction`を記述する。
-- `date`には指定したい日付、例えば`20191001`を記述する。
+- `region`には指定したい地域目、例えば`"kanto"`を記述する。
+- `date`には指定したい日付の配列、例えば`["20200501]"`を記述する。
 
 ```bash
 if __name__ == "__main__":
-    
-    output = '../region/output/business_category/region_business_category_date.csv'
-    file_list = list_all_files('./data/region/business_category/date'
-        , extension= 'html', sort = True)
-    make_csv(file_list, output)
+
+    region = 'kanto'
+    # dataが存在する日付を指定
+    dates = ["20200501"]
+
+    for date in dates:
+      output_directory = set_output_directory(region, date)
+      file_list = list_all_files(get_input_directory(region, date), extension= 'html', sort = True)
+      make_csv(file_list, output_directory)
+
 ```
 
-2. コマンドラインで`cleaning.py`を実行する.
+2. コマンドラインで`Python cleaning_construction.py`を実行する.
+
+#### cleaning_consulting.py
+
+
+1. data取得した地域名、及び日付を設定する。
+
+- `region`には指定したい地域目、例えば`"kanto"`を記述する。
+- `date`には指定したい日付の配列、例えば`["20200501]"`を記述する。
+
+```bash
+if __name__ == "__main__":
+
+    region = 'kanto'
+    # dataが存在する日付を指定
+    dates = ["20200501"]
+
+    for date in dates:
+      output_directory = set_output_directory(region, date)
+      file_list = list_all_files(get_input_directory(region, date), extension= 'html', sort = True)
+      make_csv(file_list, output_directory)
+
+```
+
+2. コマンドラインで`Python cleaning_consulting.py`を実行する.
 
 ### 2.3. ライセンス
 
