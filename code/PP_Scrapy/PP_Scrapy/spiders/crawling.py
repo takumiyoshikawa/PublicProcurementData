@@ -139,7 +139,6 @@ class Spider(CrawlSpider):
         # 年度の変更によってindex_url変更の可能性あり.
         self.index_url = 'http://www.ktr.mlit.go.jp/honkyoku/nyuusatu/shikakushinsa/files/'
         self.Rootpath = str(pathlib.Path(__file__).resolve().parents[4]) + "/data/" + self.name + "/qualification"
-        print(self.Rootpath)
         self.URL_List = URL_List(self.index_url, self.Rootpath)
         self.start_urls = self.URL_List.find_all_data_url()
         self.date_object = self.URL_List.get_update_date()
@@ -148,8 +147,7 @@ class Spider(CrawlSpider):
 
     def parse(self, response):
         html_name = response.url.split('/')[-1]
-        print(html_name)
-        print(re.search('\d+', html_name).group())
+        
         if int(re.search('\d+', html_name).group()) < 30:
             filename = self.Rootpath + '/construction/' + self.date_object + '/' + self.name + '_' + self.date_object + '_' + response.url.split("/")[-1]
             print(filename)
