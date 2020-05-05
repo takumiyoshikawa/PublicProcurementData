@@ -60,7 +60,7 @@ def clean_html(filename):
     for firm in firm_list:
         firm = firm.select("font")
         if len(firm) < 1:
-        	continue
+            continue
 
         # exception : append JV flag 
         if (not re.search( '（共）', list(firm[0].strings)[0]) == None) and len(list(firm[0].strings)) == 3:
@@ -73,17 +73,21 @@ def clean_html(filename):
         else:
             firm_data = pd.Series(firm[0].strings, index = colname[0])
         
-        # make df
         for i in range(1, len(firm)):
             temp = [str(content) for content in firm[i].contents]
-            
+            temp = "".join(temp).split("<br/>")
             if len(temp) <= 1:
                 temp = ["", "", "", "", "", ""]
                 firm_ind =  pd.Series(temp, index = colname[i])
+
+            temp = [jaconv.z2h(c, digit = True, ascii = True) for c in temp]
+            if (len(temp) == 5):
+                # firm_ind = list("".join(temp).split("<br/>"))
+                # no exception
+                temp.insert(2, "")
+                firm_ind = pd.Series(temp, index = colname[i])
             else:
-                # zenkaku to hankaku
-                temp = [jaconv.z2h(c, digit = True, ascii = True) for c in temp]
-                firm_ind = pd.Series("".join(temp).split("<br/>"), index = colname[i])
+                firm_ind = pd.Series(temp , index = colname[i])
             
             firm_data = pd.concat([firm_data, firm_ind])
             
