@@ -79,6 +79,23 @@ def list_all_files(directory, extension=None, size=None, sort=False):
         path_list.sort()
 
     return path_list
+
+def get_dates_fileNotExist (region):
+    path = pathlib.Path(__file__).resolve()
+    directory = pathlib.Path(str(path.parent.parent) + "/data/" + region + "/qualification/consulting/")
+
+    dates = [str(folder) for folder in directory.iterdir() if folder.is_dir()]
+
+    # dates in which cross section data have already been made  
+    filelist = [str(folder) for folder in directory.iterdir() if folder.is_file()]
+    dates_fileExists = [file.split(".")[0] for file in filelist]
+
+    dates_fileNotExist = []
+    for date in dates:
+        if not (date in dates_fileExists):
+            dates_fileNotExist.append(date.split("/")[-1])
+
+    return dates_fileNotExist
     
 def make_panel(file_list):
     if file_list == None:
@@ -121,7 +138,8 @@ if __name__ == "__main__":
 
     region = 'kanto'
     # dataが存在する日付を指定
-    dates = ["20200501"]
+    dates = get_dates_fileNotExist(region)
+    print(dates)
 
 
     for date in dates:
